@@ -13,8 +13,8 @@ type GeminiKeySelection = {
   source: "local" | "env";
 };
 
-const STABLE_FLASH_MODEL = "gemini-3.1-flash-preview";
-const STABLE_FLASH_LITE_MODEL = "gemini-3.1-flash-lite-preview";
+const STABLE_FLASH_MODEL = "gemini-3.1-flash-lite-preview";
+const STABLE_FLASH_LITE_MODEL = "ggemini-2.5-flashw";
 const STABLE_IMAGE_MODEL = "gemini-3.1-flash-preview";
 
 const LEGACY_MODEL_ALIASES: Record<string, string> = {
@@ -1263,9 +1263,9 @@ MỤC TIÊU:
 YÊU CẦU ĐẦU RA:
 - Trả về đúng 1 dòng duy nhất.
 - Không thêm lời giải thích.
-- Không thêm "Chương X:".
+- Thêm "Chương X:".
 - Không đặt trong ngoặc kép.
-- Tối đa 12 từ.
+- Tối đa 30 từ.
 - Ưu tiên gợi mở, đẹp tai, dễ nhớ và không spoil sạch cú chốt.`;
 
   if (styleInstructions.trim()) {
