@@ -78,7 +78,7 @@ export default function StoryReader() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 mt-4 sm:mt-8">
+    <div className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 mt-4 sm:mt-8 pb-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between mb-8">
         <div>
           <Link
@@ -99,7 +99,7 @@ export default function StoryReader() {
         <button
           onClick={() => void handleOpenEditor()}
           disabled={opening}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-70"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-70"
         >
           {opening ? <Loader2 size={18} className="animate-spin" /> : <PenTool size={18} />}
           Mo trong trinh soan thao
@@ -107,12 +107,12 @@ export default function StoryReader() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="bg-white border border-stone-200 rounded-3xl p-4 sm:p-5 h-fit">
+        <aside className="bg-white border border-stone-200 rounded-3xl p-4 sm:p-5 h-fit overflow-hidden">
           <div className="flex items-center gap-2 text-stone-900 font-semibold mb-4">
             <BookOpen size={18} />
             Danh sach chuong
           </div>
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-[50vh] lg:max-h-none overflow-y-auto">
             {project.payload.volumes.map((volume) => (
               <div key={volume.id}>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400 mb-2">
@@ -139,7 +139,7 @@ export default function StoryReader() {
           </div>
         </aside>
 
-        <section className="bg-white border border-stone-200 rounded-3xl p-5 sm:p-8">
+        <section className="bg-white border border-stone-200 rounded-3xl p-5 sm:p-8 min-w-0">
           {activeChapter ? (
             <>
               <h2 className="text-2xl font-bold text-stone-900">{activeChapter.title}</h2>

@@ -117,7 +117,7 @@ export default function StoryLibrary() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-8 lg:p-12 mt-4 sm:mt-10">
+    <div className="max-w-5xl mx-auto p-4 sm:p-8 lg:p-12 mt-4 sm:mt-10 pb-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
@@ -132,10 +132,10 @@ export default function StoryLibrary() {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-end">
           <button
             onClick={() => importInputRef.current?.click()}
-            className="inline-flex items-center gap-2 px-4 py-3 bg-white border border-stone-200 rounded-xl font-medium text-stone-700 hover:border-emerald-500 hover:text-emerald-600 transition-colors"
+            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-3 bg-white border border-stone-200 rounded-xl font-medium text-stone-700 hover:border-emerald-500 hover:text-emerald-600 transition-colors"
           >
             <Upload size={18} />
             Nhập JSON
@@ -143,7 +143,7 @@ export default function StoryLibrary() {
           <button
             onClick={handleCreateProject}
             disabled={busyProjectId === "creating"}
-            className="inline-flex items-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-70"
+            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-70"
           >
             {busyProjectId === "creating" ? (
               <Loader2 size={18} className="animate-spin" />
@@ -219,10 +219,10 @@ export default function StoryLibrary() {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-3 shrink-0">
+                <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full lg:w-auto">
                   <Link
                     to={`/library/${project.id}`}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stone-200 text-stone-700 font-medium hover:border-sky-500 hover:text-sky-600 transition-colors"
+                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-stone-200 text-stone-700 font-medium hover:border-sky-500 hover:text-sky-600 transition-colors"
                   >
                     <BookOpen size={16} />
                     Đọc
@@ -230,7 +230,7 @@ export default function StoryLibrary() {
                   <button
                     onClick={() => void handleOpenProject(project.id)}
                     disabled={busyProjectId === project.id}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-70"
+                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-70"
                   >
                     {busyProjectId === project.id ? (
                       <Loader2 size={16} className="animate-spin" />
@@ -242,7 +242,7 @@ export default function StoryLibrary() {
                   <button
                     onClick={() => void handleDeleteProject(project.id)}
                     disabled={busyProjectId === project.id}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-rose-200 text-rose-600 font-medium hover:bg-rose-50 transition-colors disabled:opacity-70"
+                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-rose-200 text-rose-600 font-medium hover:bg-rose-50 transition-colors disabled:opacity-70"
                   >
                     <Trash2 size={16} />
                     Xóa

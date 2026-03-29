@@ -2127,20 +2127,28 @@ export default function StoryEditor() {
     const newChapterId = `c${Date.now()}`;
     setStoryVolumes((prev) =>
       prev.map((v) => {
-        if (v.id === volumeId) {
-          return {
-            ...v,
-            chapters: [
-              ...v.chapters,
-              {
-                id: newChapterId,
-                title: `Chương ${v.chapters.length + 1}`,
-                content: "",
-              },
-            ],
-          };
+        if (v.id !== volumeId) {
+          return v;
         }
-        return v;
+
+        const currentChapterIndex =
+          activeVolumeId === volumeId
+            ? v.chapters.findIndex((chapter) => chapter.id === activeChapterId)
+            : -1;
+        const insertAt =
+          currentChapterIndex >= 0 ? currentChapterIndex + 1 : v.chapters.length;
+
+        const nextChapters = [...v.chapters];
+        nextChapters.splice(insertAt, 0, {
+          id: newChapterId,
+          title: `Chương ${insertAt + 1}`,
+          content: "",
+        });
+
+        return {
+          ...v,
+          chapters: nextChapters,
+        };
       }),
     );
     if (!expandedVolumes.includes(volumeId)) {
@@ -2249,8 +2257,8 @@ export default function StoryEditor() {
     <div className="h-full flex flex-col relative bg-stone-50">
       {/* Top Toolbar */}
       {!isFocusMode && (
-        <div className="sticky top-0 z-10 bg-white/70 backdrop-blur-xl border-b border-stone-200/60 px-4 sm:px-8 py-4 flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-2 sm:gap-6">
+        <div className="sticky top-0 z-10 bg-white/70 backdrop-blur-xl border-b border-stone-200/60 px-3 sm:px-8 py-3 sm:py-4 flex flex-col gap-3 sm:gap-0 sm:flex-row sm:items-center sm:justify-between shadow-sm supports-[padding:max(0px)]:pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <div className="flex items-center gap-2 sm:gap-6 min-w-0">
             <Link
               to="/page3"
               className="p-2 text-stone-500 hover:text-stone-900 hover:bg-stone-100/80 rounded-xl transition-all active:scale-95"
@@ -2274,7 +2282,7 @@ export default function StoryEditor() {
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 min-w-0 no-scrollbar pb-1 -mb-1 w-full sm:w-auto">
             {!hasGeminiKey && (
               <button
                 onClick={openGeminiKeyManager}
@@ -2290,7 +2298,7 @@ export default function StoryEditor() {
               <span>{draftCharacterCount} ký tự</span>
             </div>
             <div
-              className="flex items-center gap-0.5 sm:gap-1 relative"
+              className="flex items-center gap-0.5 sm:gap-1 relative shrink-0"
               ref={menuRef}
             >
               <button
@@ -2393,6 +2401,17 @@ export default function StoryEditor() {
               </button>
 
               <button
+                onClick={() => addChapter(activeVolumeId)}
+                className="p-2 text-stone-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all flex items-center gap-2 active:scale-95"
+                title="Thêm chương mới"
+              >
+                <Plus size={18} />
+                <span className="hidden xl:inline text-sm font-bold">
+                  Thêm chương
+                </span>
+              </button>
+
+              <button
                 onClick={() => setShowMenu(!showMenu)}
                 className={`p-2 rounded-xl transition-all active:scale-95 ${showMenu ? "bg-stone-900 text-white shadow-md" : "text-stone-500 hover:bg-stone-100"}`}
                 title="Menu quản lý"
@@ -2401,7 +2420,7 @@ export default function StoryEditor() {
               </button>
 
               {showMenu && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-stone-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute top-full right-0 mt-2 w-[min(16rem,calc(100vw-1rem))] max-w-[calc(100vw-1rem)] bg-white rounded-xl shadow-xl border border-stone-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <button
                     onClick={() => handleShare("chapter")}
                     disabled={isSharing}
@@ -4065,7 +4084,7 @@ export default function StoryEditor() {
         {/* Sidebar Drawer */}
         {!isFocusMode && (
           <div
-            className={`fixed lg:absolute top-0 bottom-0 left-0 z-[60] lg:z-30 bg-white/95 backdrop-blur-xl border-r border-stone-200/60 flex flex-col transition-all duration-500 ease-in-out shadow-2xl w-[85vw] sm:w-80 ${isSidebarCollapsed ? "-translate-x-full" : "translate-x-0"}`}
+            className={`fixed lg:absolute top-0 bottom-0 left-0 z-[60] lg:z-30 bg-white/95 backdrop-blur-xl border-r border-stone-200/60 flex flex-col transition-all duration-500 ease-in-out shadow-2xl w-[min(88vw,20rem)] sm:w-80 ${isSidebarCollapsed ? "-translate-x-full" : "translate-x-0"}`}
           >
             <div className="p-4 sm:p-6 border-b border-stone-100 flex items-center justify-between bg-white/50">
               <div className="flex items-center gap-2">
@@ -4203,11 +4222,11 @@ export default function StoryEditor() {
         {/* Editor Area - Maximized */}
         <div
           id="editor-scroll-container"
-          className={`flex-1 overflow-y-auto relative w-full transition-all duration-500 no-scrollbar ${
-            isFocusMode
-              ? "bg-white pt-12 pb-32"
-              : "bg-[#F8F7F4] pt-4 sm:pt-8 pb-64 sm:pb-96 px-2 sm:px-8"
-          }`}
+            className={`flex-1 overflow-y-auto relative w-full min-w-0 transition-all duration-500 no-scrollbar ${
+              isFocusMode
+                ? "bg-white pt-12 pb-32"
+                : "bg-[#F8F7F4] pt-3 sm:pt-8 pb-64 sm:pb-96 px-2 sm:px-8"
+            }`}
         >
           {isFocusMode && (
             <div className="fixed top-4 right-4 sm:top-8 sm:right-8 z-[100] flex gap-2">
@@ -4219,6 +4238,16 @@ export default function StoryEditor() {
                 <ArrowRight size={20} className="sm:w-6 sm:h-6" />
                 <span className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-stone-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none hidden sm:block">
                   Chương sau
+                </span>
+              </button>
+              <button
+                onClick={() => addChapter(activeVolumeId)}
+                className="p-3 sm:p-4 bg-emerald-600 text-white hover:bg-emerald-700 rounded-full shadow-2xl transition-all hover:scale-110 active:scale-95 group"
+                title="Thêm chương mới"
+              >
+                <Plus size={20} className="sm:w-6 sm:h-6" />
+                <span className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-stone-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none hidden sm:block">
+                  Thêm chương
                 </span>
               </button>
               <button
@@ -4236,18 +4265,18 @@ export default function StoryEditor() {
 
           {activeChapter ? (
             <div
-              className={`max-w-4xl mx-auto transition-all duration-700 ease-in-out ${
+              className={`max-w-4xl mx-auto transition-all duration-700 ease-in-out min-w-0 ${
                 isFocusMode
                   ? "bg-transparent border-none shadow-none p-4 sm:p-0"
-                  : "bg-white rounded-3xl sm:rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-stone-200/50 p-5 sm:p-16 min-h-[85vh] relative"
+                  : "bg-white rounded-3xl sm:rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-stone-200/50 p-4 sm:p-16 min-h-[85vh] relative"
               }`}
             >
               {!isFocusMode && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 text-white  text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 flex max-w-[calc(100%-1.5rem)] items-center gap-2 px-2 py-2 text-white text-[10px] font-bold uppercase tracking-[0.2em]">
                   <button
                     onClick={handleGenerateChapterTitle}
                     disabled={loadingChapterTitle || !localContent.trim()}
-                    className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`inline-flex max-w-full items-center justify-center gap-2 rounded-2xl border px-3 sm:px-4 py-2.5 text-[11px] sm:text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                       isFocusMode
                         ? "border-stone-300/80 bg-white/80 text-stone-700 backdrop-blur hover:bg-white"
                         : "border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
@@ -4273,10 +4302,10 @@ export default function StoryEditor() {
                     rows={2}
                     value={activeChapter.title}
                     onChange={(e) => updateActiveChapterTitle(e.target.value)}
-                    className={`w-full overflow-hidden flex-1 font-display font-bold text-stone-900 bg-transparent border-none focus:outline-none focus:ring-0 p-0 placeholder:text-stone-200 ${
+                    className={`w-full min-w-0 overflow-hidden flex-1 font-display font-bold text-stone-900 bg-transparent border-none focus:outline-none focus:ring-0 p-0 placeholder:text-stone-200 ${
                       isFocusMode
                         ? "text-3xl sm:text-5xl text-center opacity-40 hover:opacity-100 focus:opacity-100"
-                        : "text-2xl sm:text-4xl"
+                        : "text-xl sm:text-4xl"
                     }`}
                     placeholder="Tên chương..."
                   />
@@ -4303,7 +4332,10 @@ export default function StoryEditor() {
 
       {/* AI Control Panel - Floating at bottom */}
       {!isFocusMode && (
-        <div className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-40 w-full max-w-4xl px-2 sm:px-4 transition-all duration-500">
+        <div
+          className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-40 w-full max-w-4xl px-2 sm:px-4 transition-all duration-500"
+          style={{ paddingBottom: "max(0px, env(safe-area-inset-bottom))" }}
+        >
           <div className="glass-panel p-1.5 sm:p-2 rounded-3xl sm:rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex flex-col gap-1.5 sm:gap-2 border border-white/40">
             {/* Instruction Input */}
             <div className="relative group px-1">
@@ -4328,9 +4360,9 @@ export default function StoryEditor() {
               </button>
             </div>
 
-            <div className="flex items-center justify-between gap-1 sm:gap-2 px-1 pb-0.5 sm:pb-1">
+            <div className="flex flex-col items-start md:items-center md:flex-row justify-between gap-1 sm:gap-2 px-1 pb-0.5 sm:pb-1">
               {/* Left: Styles */}
-              <div className="flex items-center bg-stone-100/80 p-0.5 sm:p-1 rounded-lg sm:rounded-xl border border-stone-200/50 overflow-x-auto no-scrollbar flex-1 min-w-0 max-w-[120px] sm:max-w-none">
+              <div className="flex items-center bg-stone-100/80 p-0.5 sm:p-1 rounded-lg sm:rounded-xl border border-stone-200/50 overflow-x-auto no-scrollbar flex-1 min-w-0 max-w-full sm:max-w-none">
                 {["Thuần Việt", "Hán Việt", "Kịch tính", "Miêu tả"].map(
                   (style) => (
                     <button
