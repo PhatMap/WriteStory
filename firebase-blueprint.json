@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "UserData": {
+      "title": "UserData",
+      "description": "Dữ liệu đồng bộ của người dùng (quy tắc truyện, bối cảnh, v.v.)",
+      "type": "object",
+      "properties": {
+        "sync_id": { "type": "string", "description": "ID đồng bộ của người dùng" },
+        "key": { "type": "string", "description": "Khóa dữ liệu (ví dụ: storyRules)" },
+        "value": { "type": "string", "description": "Giá trị dữ liệu (JSON string)" },
+        "updated_at": { "type": "string", "format": "date-time", "description": "Thời gian cập nhật cuối cùng" }
+      },
+      "required": ["sync_id", "key", "value"]
+    },
+    "SharedStory": {
+      "title": "SharedStory",
+      "description": "Truyện được chia sẻ công khai",
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string", "description": "Slug định danh truyện" },
+        "title": { "type": "string", "description": "Tiêu đề truyện" },
+        "content": { "type": "string", "description": "Nội dung truyện (JSON string)" },
+        "author_uid": { "type": "string", "description": "UID của tác giả" },
+        "created_at": { "type": "string", "format": "date-time", "description": "Thời gian tạo" }
+      },
+      "required": ["slug", "title", "content", "author_uid"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/data/{dataId}": {
+      "schema": "UserData",
+      "description": "Dữ liệu cá nhân của người dùng"
+    },
+    "/shared_stories/{slug}": {
+      "schema": "SharedStory",
+      "description": "Bộ sưu tập truyện chia sẻ công khai"
+    }
+  }
+}
