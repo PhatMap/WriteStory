@@ -13,13 +13,13 @@ type GeminiKeySelection = {
   source: "local" | "env";
 };
 
-const STABLE_FLASH_MODEL = "gemini-2.5-flash";
-const STABLE_FLASH_LITE_MODEL = "gemini-2.5-flash-lite";
-const STABLE_IMAGE_MODEL = "gemini-2.5-flash-image";
+const STABLE_FLASH_MODEL = "gemini-3.1-flash-preview";
+const STABLE_FLASH_LITE_MODEL = "gemini-3.1-flash-lite-preview";
+const STABLE_IMAGE_MODEL = "gemini-3.1-flash-preview";
 
 const LEGACY_MODEL_ALIASES: Record<string, string> = {
-  "gemini-3.1-flash-preview": STABLE_FLASH_MODEL,
-  "gemini-3.1-flash-lite-preview": STABLE_FLASH_LITE_MODEL,
+  "gemini-2.5-flash": STABLE_FLASH_MODEL,
+  "gemini-2.5-flash-lite": STABLE_FLASH_LITE_MODEL,
   "gemini-flash-latest": STABLE_FLASH_MODEL,
   "gemini-flash-lite-latest": STABLE_FLASH_LITE_MODEL,
 };
@@ -60,11 +60,17 @@ function isModelError(errorMessage: string) {
 }
 
 function isQuotaError(errorMessage: string) {
-  return !isModelError(errorMessage) && hasErrorPattern(errorMessage, QUOTA_ERROR_PATTERNS);
+  return (
+    !isModelError(errorMessage) &&
+    hasErrorPattern(errorMessage, QUOTA_ERROR_PATTERNS)
+  );
 }
 
 function shouldRotateGeminiKey(errorMessage: string) {
-  return !isModelError(errorMessage) && hasErrorPattern(errorMessage, KEY_ROTATION_ERROR_PATTERNS);
+  return (
+    !isModelError(errorMessage) &&
+    hasErrorPattern(errorMessage, KEY_ROTATION_ERROR_PATTERNS)
+  );
 }
 
 function getEnvGeminiApiKey() {
