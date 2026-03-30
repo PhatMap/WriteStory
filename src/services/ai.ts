@@ -1,5 +1,15 @@
 import { GoogleGenAI, HarmCategory, HarmBlockThreshold } from "@google/genai";
 import {
+  DEFAULT_TEXT_MODEL_PREFERENCE,
+  STABLE_FLASH_LITE_MODEL,
+  STABLE_FLASH_MODEL,
+  STABLE_IMAGE_MODEL,
+  getPreferredTextModelPreference,
+  isImageGenerationModel,
+  normalizeGeminiModelName,
+} from "../utils/aiModels";
+import {
+  getGeminiKeyState,
   markGeminiKeyFailure,
   markGeminiKeyQuotaExceeded,
   markGeminiKeyUsed,
@@ -11,17 +21,6 @@ type GeminiKeySelection = {
   label: string;
   apiKey: string;
   source: "local" | "env";
-};
-
-const STABLE_FLASH_MODEL = "gemini-3.1-flash-lite-preview";
-const STABLE_FLASH_LITE_MODEL = "ggemini-2.5-flashw";
-const STABLE_IMAGE_MODEL = "gemini-3.1-flash-preview";
-
-const LEGACY_MODEL_ALIASES: Record<string, string> = {
-  "gemini-2.5-flash": STABLE_FLASH_MODEL,
-  "gemini-2.5-flash-lite": STABLE_FLASH_LITE_MODEL,
-  "gemini-flash-latest": STABLE_FLASH_MODEL,
-  "gemini-flash-lite-latest": STABLE_FLASH_LITE_MODEL,
 };
 
 const QUOTA_ERROR_PATTERNS = [
@@ -74,6 +73,15 @@ function shouldRotateGeminiKey(errorMessage: string) {
 }
 
 function getEnvGeminiApiKey() {
+  const viteEnvKey =
+    typeof import.meta !== "undefined" &&
+    typeof import.meta.env?.VITE_GEMINI_API_KEY === "string" &&
+    import.meta.env.VITE_GEMINI_API_KEY.trim()
+      ? import.meta.env.VITE_GEMINI_API_KEY.trim()
+      : undefined;
+
+  if (viteEnvKey) return viteEnvKey;
+
   if (typeof process === "undefined") return undefined;
   const envKey = process.env.GEMINI_API_KEY;
   return typeof envKey === "string" && envKey.trim()
@@ -83,11 +91,6 @@ function getEnvGeminiApiKey() {
 
 function getAI(apiKey: string) {
   return new GoogleGenAI({ apiKey });
-}
-
-function normalizeGeminiModelName(model?: string) {
-  if (!model) return STABLE_FLASH_MODEL;
-  return LEGACY_MODEL_ALIASES[model] ?? model;
 }
 
 async function getSelectedGeminiKey(
@@ -115,14 +118,49 @@ async function getSelectedGeminiKey(
   return null;
 }
 
+async function getUnavailableGeminiKeyMessage(excludedIds: string[]) {
+  const { keys } = await getGeminiKeyState();
+  const now = Date.now();
+
+  if (keys.length === 0) {
+    return "Chưa có Gemini API key nào được cấu hình. Hãy thêm key bằng nút API Key trên header.";
+  }
+
+  const enabledKeys = keys.filter((key) => key.enabled);
+  if (enabledKeys.length === 0) {
+    return "Gemini API key của bạn đang bị tắt hết. Hãy mở nút API Key trên header và bật lại ít nhất một key.";
+  }
+
+  const readyKeys = enabledKeys.filter(
+    (key) => !key.cooldownUntil || key.cooldownUntil <= now,
+  );
+  if (readyKeys.length === 0) {
+    return "Gemini API key của bạn đang tạm nghỉ sau khi hết quota hoặc lỗi gần đây. Hãy mở nút API Key trên header và bấm 'Dùng lại ngay', hoặc thêm key khác.";
+  }
+
+  if (excludedIds.length > 0) {
+    return "Tất cả Gemini API key hiện đang hết lượt hoặc tạm thời không khả dụng. Hãy mở nút API Key trên header để kiểm tra lại.";
+  }
+
+  return "Chưa thể chọn được Gemini API key khả dụng. Hãy mở nút API Key trên header để kiểm tra lại.";
+}
+
 async function safeGenerateContent(
   params: any,
   retryCount = 0,
   exhaustedKeyIds: string[] = [],
 ): Promise<any> {
+  const preferredTextModel = getPreferredTextModelPreference();
+  const requestedModel = params.model;
+  const shouldOverrideTextModel =
+    preferredTextModel !== DEFAULT_TEXT_MODEL_PREFERENCE &&
+    !isImageGenerationModel(requestedModel);
+
   const normalizedParams = {
     ...params,
-    model: normalizeGeminiModelName(params.model),
+    model: normalizeGeminiModelName(
+      shouldOverrideTextModel ? preferredTextModel : requestedModel,
+    ),
   };
 
   // Always use the most relaxed safety settings to remove limits
@@ -150,11 +188,7 @@ async function safeGenerateContent(
 
   const selectedKey = await getSelectedGeminiKey(exhaustedKeyIds);
   if (!selectedKey) {
-    throw new Error(
-      exhaustedKeyIds.length > 0
-        ? "Tất cả Gemini API key hiện đang hết lượt hoặc tạm thời không khả dụng. Hãy kiểm tra lại trong Cài đặt."
-        : "Chưa có Gemini API key nào được cấu hình. Hãy thêm key trong tab Tham khảo.",
-    );
+    throw new Error(await getUnavailableGeminiKeyMessage(exhaustedKeyIds));
   }
 
   try {
@@ -194,7 +228,7 @@ async function safeGenerateContent(
 
     if (isModelError(errorMessage)) {
       throw new Error(
-        `Model AI hiện không khả dụng: ${normalizedParams.model}. App đã tự chuyển các model cũ sang bản ổn định, nhưng model này vẫn không chạy được với key hiện tại.`,
+        `Model AI hiện không khả dụng: ${normalizedParams.model}. Hãy đổi model trong popup API Key trên header hoặc thử key khác.`,
       );
     }
 
@@ -210,6 +244,9 @@ async function safeGenerateContent(
       );
 
       const fallbackParams = { ...normalizedParams };
+      const canAutoSwitchModels =
+        preferredTextModel === DEFAULT_TEXT_MODEL_PREFERENCE &&
+        !isImageGenerationModel(normalizedParams.model);
 
       // Strategy 1: Relax safety settings completely if it was a safety block
       if (errorMessage.toLowerCase().includes("safety")) {
@@ -243,16 +280,14 @@ async function safeGenerateContent(
         console.log(
           "Detected RPC/XHR error, switching to a more stable model for retry...",
         );
-        // Only switch models if it's not an image generation model
-        if (!normalizedParams.model?.includes("image")) {
+        if (canAutoSwitchModels) {
           fallbackParams.model =
             retryCount === 0 ? STABLE_FLASH_MODEL : STABLE_FLASH_LITE_MODEL;
         }
       }
       // Strategy 3: Switch to a faster but still capable model if it was a timeout or internal error
       else if (retryCount >= 1) {
-        // Only switch models if it's not an image generation model
-        if (!normalizedParams.model?.includes("image")) {
+        if (canAutoSwitchModels) {
           fallbackParams.model = STABLE_FLASH_MODEL;
         }
       }

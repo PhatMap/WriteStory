@@ -68,17 +68,6 @@ import {
   saveStoryProject,
   type StoryProjectPayload,
 } from "../utils/storyLibrary";
-import {
-  GEMINI_KEYS_CHANGED_EVENT,
-  addGeminiKey,
-  deleteGeminiKey,
-  formatGeminiCooldown,
-  getGeminiKeyState,
-  maskGeminiApiKey,
-  setActiveGeminiKey,
-  setGeminiKeyEnabled,
-  type GeminiKeyRecord,
-} from "../utils/geminiKeys";
 import { useAuth } from "../contexts/AuthContext";
 import { db, doc, setDoc } from "../services/firebase";
 
@@ -821,14 +810,6 @@ export default function StoryEditor() {
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareType, setShareType] = useState<"chapter" | "story">("chapter");
-  const [geminiKeys, setGeminiKeys] = useState<GeminiKeyRecord[]>([]);
-  const [activeGeminiKeyId, setActiveGeminiKeyId] = useState<string | null>(
-    null,
-  );
-  const [newGeminiKeyLabel, setNewGeminiKeyLabel] = useState("");
-  const [newGeminiKeyValue, setNewGeminiKeyValue] = useState("");
-  const [isSavingGeminiKey, setIsSavingGeminiKey] = useState(false);
-  const [visibleGeminiKeyIds, setVisibleGeminiKeyIds] = useState<string[]>([]);
   const [suggestedNames, setSuggestedNames] = useState<string | null>(null);
   const [loadingNames, setLoadingNames] = useState(false);
   const [loadingAppearance, setLoadingAppearance] = useState(false);
@@ -845,12 +826,6 @@ export default function StoryEditor() {
   } | null>(null);
   const [scanResults, setScanResults] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const hasGeminiKey = geminiKeys.some((key) => key.enabled);
-  const enabledGeminiKeyCount = geminiKeys.filter((key) => key.enabled).length;
-  const activeGeminiKey =
-    geminiKeys.find((key) => key.id === activeGeminiKeyId) || null;
-  const hasApiKey = hasGeminiKey;
-  const isCheckingKey = false;
 
   function buildProjectPayload(
     sourceVolumes: Volume[] = getVolumesWithCurrentDraft(),
@@ -917,28 +892,6 @@ export default function StoryEditor() {
   ]);
 
   useEffect(() => {
-    const loadGeminiKeyState = async () => {
-      const state = await getGeminiKeyState();
-      setGeminiKeys(state.keys);
-      setActiveGeminiKeyId(state.activeKeyId);
-    };
-
-    void loadGeminiKeyState();
-
-    const handleGeminiKeysChanged = () => {
-      void loadGeminiKeyState();
-    };
-
-    window.addEventListener(GEMINI_KEYS_CHANGED_EVENT, handleGeminiKeysChanged);
-    return () => {
-      window.removeEventListener(
-        GEMINI_KEYS_CHANGED_EVENT,
-        handleGeminiKeysChanged,
-      );
-    };
-  }, []);
-
-  useEffect(() => {
     const updateUsage = async () => {
       const usage = await getStorageUsage();
       setStorageUsage(usage);
@@ -955,19 +908,6 @@ export default function StoryEditor() {
     }, 1000);
     return () => clearTimeout(timer);
   }, [autoScanErrors, isLoaded]);
-
-  const openGeminiKeyManager = () => {
-    setActiveSettingsTab("reference");
-    setIsSettingsModalOpen(true);
-  };
-  const handleOpenKeySelector = openGeminiKeyManager;
-
-  const getReadableAiError = (error: unknown, fallback: string) => {
-    if (error instanceof Error && error.message) {
-      return error.message;
-    }
-    return fallback;
-  };
 
   const buildStoryContext = () => {
     const storyContext: any = {
@@ -986,6 +926,13 @@ export default function StoryEditor() {
     }
 
     return storyContext;
+  };
+
+  const getReadableAiError = (error: unknown, fallback: string) => {
+    if (error instanceof Error && error.message) {
+      return error.message;
+    }
+    return fallback;
   };
 
   const createBackupPayload = (
@@ -1038,107 +985,6 @@ export default function StoryEditor() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
-
-  const toggleGeminiKeyVisibility = (id: string) => {
-    setVisibleGeminiKeyIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
-    );
-  };
-
-  const handleAddGeminiKey = async () => {
-    if (!newGeminiKeyValue.trim()) {
-      setConfirmDialog({
-        isOpen: true,
-        title: "Thiếu API key",
-        message: "Hãy dán Gemini API key trước khi lưu.",
-        isAlert: true,
-        onConfirm: () => setConfirmDialog(null),
-      });
-      return;
-    }
-
-    setIsSavingGeminiKey(true);
-    try {
-      await addGeminiKey(newGeminiKeyLabel, newGeminiKeyValue);
-      setNewGeminiKeyLabel("");
-      setNewGeminiKeyValue("");
-    } catch (error) {
-      console.error(error);
-      setConfirmDialog({
-        isOpen: true,
-        title: "Không thể lưu key",
-        message: getReadableAiError(
-          error,
-          "Có lỗi xảy ra khi lưu Gemini API key.",
-        ),
-        isAlert: true,
-        onConfirm: () => setConfirmDialog(null),
-      });
-    } finally {
-      setIsSavingGeminiKey(false);
-    }
-  };
-
-  const handleSetActiveGeminiKey = async (keyId: string) => {
-    try {
-      await setActiveGeminiKey(keyId);
-    } catch (error) {
-      console.error(error);
-      setConfirmDialog({
-        isOpen: true,
-        title: "Không thể đổi key",
-        message: getReadableAiError(
-          error,
-          "Không thể đặt key này làm key đang dùng.",
-        ),
-        isAlert: true,
-        onConfirm: () => setConfirmDialog(null),
-      });
-    }
-  };
-
-  const handleToggleGeminiKeyEnabled = async (
-    keyId: string,
-    enabled: boolean,
-  ) => {
-    try {
-      await setGeminiKeyEnabled(keyId, enabled);
-    } catch (error) {
-      console.error(error);
-      setConfirmDialog({
-        isOpen: true,
-        title: "Không thể cập nhật key",
-        message: getReadableAiError(
-          error,
-          "Có lỗi xảy ra khi cập nhật trạng thái key.",
-        ),
-        isAlert: true,
-        onConfirm: () => setConfirmDialog(null),
-      });
-    }
-  };
-
-  const handleDeleteGeminiKey = (keyId: string, label: string) => {
-    setConfirmDialog({
-      isOpen: true,
-      title: "Xóa Gemini API key",
-      message: `Bạn có chắc muốn xóa ${label} khỏi trình duyệt này không?`,
-      confirmText: "Xóa key",
-      confirmColor: "bg-rose-600 hover:bg-rose-700",
-      onConfirm: async () => {
-        try {
-          await deleteGeminiKey(keyId);
-          setVisibleGeminiKeyIds((prev) =>
-            prev.filter((item) => item !== keyId),
-          );
-        } catch (error) {
-          console.error(error);
-        } finally {
-          setConfirmDialog(null);
-        }
-      },
-    });
   };
 
   useEffect(() => {
@@ -1386,7 +1232,7 @@ export default function StoryEditor() {
       setConfirmDialog({
         isOpen: true,
         title: "Lỗi",
-        message: "Có lỗi xảy ra khi AI viết tiếp.",
+        message: getReadableAiError(error, "Có lỗi xảy ra khi AI viết tiếp."),
         isAlert: true,
         onConfirm: () => setConfirmDialog(null),
       });
@@ -1438,7 +1284,7 @@ export default function StoryEditor() {
       setConfirmDialog({
         isOpen: true,
         title: "Lỗi",
-        message: "Có lỗi xảy ra khi AI viết lại.",
+        message: getReadableAiError(error, "Có lỗi xảy ra khi AI viết lại."),
         isAlert: true,
         onConfirm: () => setConfirmDialog(null),
       });
@@ -1488,7 +1334,10 @@ export default function StoryEditor() {
       setConfirmDialog({
         isOpen: true,
         title: "Lỗi",
-        message: "Có lỗi xảy ra khi AI thêm cảnh nóng.",
+        message: getReadableAiError(
+          error,
+          "Có lỗi xảy ra khi AI thêm cảnh nóng.",
+        ),
         isAlert: true,
         onConfirm: () => setConfirmDialog(null),
       });
@@ -1564,7 +1413,7 @@ export default function StoryEditor() {
       setConfirmDialog({
         isOpen: true,
         title: "Lỗi",
-        message: "Không thể gợi ý tên nhân vật.",
+        message: getReadableAiError(error, "Không thể gợi ý tên nhân vật."),
         isAlert: true,
         onConfirm: () => setConfirmDialog(null),
       });
@@ -1606,6 +1455,16 @@ export default function StoryEditor() {
       }
     } catch (error) {
       console.error(error);
+      setConfirmDialog({
+        isOpen: true,
+        title: "Lỗi",
+        message: getReadableAiError(
+          error,
+          "Không thể gợi ý ngoại hình nhân vật.",
+        ),
+        isAlert: true,
+        onConfirm: () => setConfirmDialog(null),
+      });
     } finally {
       setLoadingAppearance(false);
     }
@@ -1628,7 +1487,10 @@ export default function StoryEditor() {
       setConfirmDialog({
         isOpen: true,
         title: "Lỗi",
-        message: "Có lỗi xảy ra khi AI lập bản đồ cốt truyện.",
+        message: getReadableAiError(
+          error,
+          "Có lỗi xảy ra khi AI lập bản đồ cốt truyện.",
+        ),
         isAlert: true,
         onConfirm: () => setConfirmDialog(null),
       });
@@ -1656,7 +1518,10 @@ export default function StoryEditor() {
       setConfirmDialog({
         isOpen: true,
         title: "Lỗi",
-        message: "Có lỗi xảy ra khi AI quét toàn bộ truyện.",
+        message: getReadableAiError(
+          error,
+          "Có lỗi xảy ra khi AI quét toàn bộ truyện.",
+        ),
         isAlert: true,
         onConfirm: () => setConfirmDialog(null),
       });
@@ -1863,7 +1728,10 @@ export default function StoryEditor() {
       setConfirmDialog({
         isOpen: true,
         title: "Lỗi",
-        message: "Có lỗi xảy ra khi AI quét lỗi truyện.",
+        message: getReadableAiError(
+          error,
+          "Có lỗi xảy ra khi AI quét lỗi truyện.",
+        ),
         isAlert: true,
         onConfirm: () => setConfirmDialog(null),
       });
@@ -1946,7 +1814,10 @@ export default function StoryEditor() {
       setConfirmDialog({
         isOpen: true,
         title: "Lỗi",
-        message: "Có lỗi xảy ra khi AI tự động sửa lỗi.",
+        message: getReadableAiError(
+          error,
+          "Có lỗi xảy ra khi AI tự động sửa lỗi.",
+        ),
         isAlert: true,
         onConfirm: () => setConfirmDialog(null),
       });
@@ -2283,17 +2154,7 @@ export default function StoryEditor() {
             </div>
           </div>
           <div className="flex items-center gap-1 sm:gap-2 min-w-0 no-scrollbar pb-1 -mb-1 w-full sm:w-auto">
-            {!hasGeminiKey && (
-              <button
-                onClick={openGeminiKeyManager}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-xl text-[10px] sm:text-xs font-bold transition-all active:scale-95"
-                title="Thêm Gemini API key cá nhân để app tự xoay key khi hết quota"
-              >
-                <Sparkles size={14} />
-                <span className="hidden lg:inline">Thêm Gemini key</span>
-              </button>
-            )}
-            <div className="hidden lg:flex items-center gap-1.5 text-[10px] font-bold text-stone-400 uppercase tracking-widest bg-stone-100/50 px-3 py-1.5 rounded-full border border-stone-200/50">
+            <div className="lg:flex items-center gap-1.5 text-[10px] font-bold text-stone-400 uppercase tracking-widest bg-stone-100/50 px-3 py-1.5 rounded-full border border-stone-200/50">
               <FileText size={14} />
               <span>{draftCharacterCount} ký tự</span>
             </div>
@@ -3340,209 +3201,6 @@ export default function StoryEditor() {
 
               {activeSettingsTab === "reference" && (
                 <div className="space-y-6">
-                  <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl text-sm text-amber-800 leading-relaxed">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Shield size={18} className="text-amber-600" />
-                      <strong className="text-amber-900">
-                        Gemini API key cá nhân
-                      </strong>
-                    </div>
-                    <p className="mb-3">
-                      Key được lưu cục bộ trong trình duyệt này, tách riêng khỏi
-                      dữ liệu truyện và không đi theo file backup `.json`. Khi
-                      một key báo hết quota, app sẽ tự đổi sang key đang khả
-                      dụng tiếp theo.
-                    </p>
-                    <div className="grid gap-2 md:grid-cols-[220px_1fr_auto]">
-                      <input
-                        value={newGeminiKeyLabel}
-                        onChange={(e) => setNewGeminiKeyLabel(e.target.value)}
-                        placeholder="Tên gợi nhớ: Key 1, Acc phụ..."
-                        className="w-full px-3 py-2 rounded-xl border border-amber-200 bg-white text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent"
-                      />
-                      <input
-                        value={newGeminiKeyValue}
-                        onChange={(e) => setNewGeminiKeyValue(e.target.value)}
-                        placeholder="Dán Gemini API key vào đây"
-                        className="w-full px-3 py-2 rounded-xl border border-amber-200 bg-white text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent"
-                      />
-                      <button
-                        onClick={handleAddGeminiKey}
-                        disabled={
-                          isSavingGeminiKey || !newGeminiKeyValue.trim()
-                        }
-                        className="flex items-center justify-center gap-2 px-4 py-2 bg-white text-amber-700 border border-amber-200 rounded-xl text-xs font-bold hover:bg-amber-100 transition-all shadow-sm disabled:opacity-50"
-                      >
-                        {isSavingGeminiKey ? (
-                          <Loader2 size={14} className="animate-spin" />
-                        ) : (
-                          <Plus size={14} />
-                        )}
-                        Lưu key
-                      </button>
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
-                      <span className="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-amber-700 font-semibold">
-                        {enabledGeminiKeyCount}/{geminiKeys.length} key đang bật
-                      </span>
-                      {activeGeminiKey && (
-                        <span className="px-2.5 py-1 rounded-full bg-white border border-amber-200 text-amber-700 font-semibold">
-                          Đang dùng: {activeGeminiKey.label}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    {geminiKeys.length === 0 ? (
-                      <div className="p-4 rounded-xl border border-dashed border-stone-300 bg-stone-50 text-sm text-stone-500">
-                        Chưa có Gemini API key nào trong trình duyệt này.
-                      </div>
-                    ) : (
-                      geminiKeys.map((key) => {
-                        const cooldownLabel = formatGeminiCooldown(
-                          key.cooldownUntil,
-                        );
-                        const isVisible = visibleGeminiKeyIds.includes(key.id);
-                        const isActiveKey = key.id === activeGeminiKeyId;
-
-                        return (
-                          <div
-                            key={key.id}
-                            className="p-4 rounded-2xl border border-stone-200 bg-white/90 shadow-sm"
-                          >
-                            <div className="flex flex-wrap items-center gap-2">
-                              <strong className="text-stone-900">
-                                {key.label}
-                              </strong>
-                              {isActiveKey && (
-                                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200">
-                                  Đang dùng
-                                </span>
-                              )}
-                              {!key.enabled && (
-                                <span className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 text-[11px] font-bold border border-stone-200">
-                                  Đã tắt
-                                </span>
-                              )}
-                              {cooldownLabel && (
-                                <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[11px] font-bold border border-amber-200">
-                                  Nghỉ {cooldownLabel}
-                                </span>
-                              )}
-                            </div>
-
-                            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                              <input
-                                readOnly
-                                value={
-                                  isVisible
-                                    ? key.apiKey
-                                    : maskGeminiApiKey(key.apiKey)
-                                }
-                                className="flex-1 px-3 py-2 rounded-xl border border-stone-200 bg-stone-50 text-sm text-stone-700"
-                              />
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() =>
-                                    toggleGeminiKeyVisibility(key.id)
-                                  }
-                                  className="px-3 py-2 rounded-xl border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-50 transition-all"
-                                >
-                                  {isVisible ? "Ẩn" : "Hiện"}
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    void navigator.clipboard
-                                      .writeText(key.apiKey)
-                                      .catch(() => undefined);
-                                  }}
-                                  className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-50 transition-all"
-                                  title="Sao chép key"
-                                >
-                                  <Copy size={14} />
-                                  Copy
-                                </button>
-                              </div>
-                            </div>
-
-                            {key.lastError && (
-                              <p className="mt-2 text-[11px] text-stone-500 break-words">
-                                Lỗi gần nhất: {key.lastError}
-                              </p>
-                            )}
-
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              {!isActiveKey && key.enabled && (
-                                <button
-                                  onClick={() =>
-                                    handleSetActiveGeminiKey(key.id)
-                                  }
-                                  className="px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 hover:bg-emerald-100 transition-all"
-                                >
-                                  Dùng key này
-                                </button>
-                              )}
-                              <button
-                                onClick={() =>
-                                  handleToggleGeminiKeyEnabled(
-                                    key.id,
-                                    !key.enabled,
-                                  )
-                                }
-                                className="px-3 py-2 rounded-xl bg-stone-100 text-stone-700 text-xs font-bold border border-stone-200 hover:bg-stone-200 transition-all"
-                              >
-                                {key.enabled ? "Tạm tắt" : "Bật lại"}
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleDeleteGeminiKey(key.id, key.label)
-                                }
-                                className="px-3 py-2 rounded-xl bg-rose-50 text-rose-700 text-xs font-bold border border-rose-200 hover:bg-rose-100 transition-all"
-                              >
-                                Xóa key
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-
-                  <div className="hidden p-4 bg-amber-50 border border-amber-100 rounded-xl text-sm text-amber-800 leading-relaxed">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Shield size={18} className="text-amber-600" />
-                      <strong className="text-amber-900">
-                        Cấu hình API Key
-                      </strong>
-                    </div>
-                    <p className="mb-3">
-                      Để sử dụng các mô hình AI nâng cao hoặc tránh giới hạn
-                      lượt dùng, bạn nên cấu hình API Key cá nhân. Key sẽ được
-                      lưu trữ an toàn bởi hệ thống.
-                    </p>
-                    <button
-                      onClick={handleOpenKeySelector}
-                      disabled={isCheckingKey}
-                      className="flex items-center gap-2 px-4 py-2 bg-white text-amber-700 border border-amber-200 rounded-xl text-xs font-bold hover:bg-amber-100 transition-all shadow-sm disabled:opacity-50"
-                    >
-                      {isCheckingKey ? (
-                        <Loader2 size={14} className="animate-spin" />
-                      ) : (
-                        <Settings size={14} />
-                      )}
-                      {hasApiKey
-                        ? "Thay đổi / Cập nhật API Key"
-                        : "Thiết lập API Key cá nhân"}
-                    </button>
-                    {!hasApiKey && (
-                      <p className="mt-2 text-[10px] text-amber-600 italic">
-                        * Bạn hiện đang sử dụng Key mặc định của hệ thống (có
-                        giới hạn).
-                      </p>
-                    )}
-                  </div>
-
                   <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl text-sm text-indigo-800 leading-relaxed">
                     <div className="flex items-center gap-2 mb-2">
                       <Database size={18} className="text-indigo-600" />

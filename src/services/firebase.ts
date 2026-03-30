@@ -1,7 +1,26 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, User } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, onSnapshot, getDocFromServer, deleteDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, onSnapshot, deleteDoc } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
+
+const FIREBASE_PLACEHOLDER_MARKERS = ['remixed-', 'your-', 'example', 'demo'];
+
+function hasRealFirebaseValue(value: unknown) {
+  if (typeof value !== 'string') return false;
+  const normalized = value.trim().toLowerCase();
+  return (
+    normalized.length > 0 &&
+    !FIREBASE_PLACEHOLDER_MARKERS.some((marker) => normalized.includes(marker))
+  );
+}
+
+export const isFirebaseConfigured = [
+  firebaseConfig.projectId,
+  firebaseConfig.appId,
+  firebaseConfig.apiKey,
+  firebaseConfig.authDomain,
+  firebaseConfig.firestoreDatabaseId,
+].every(hasRealFirebaseValue);
 
 // Initialize Firebase SDK
 const app = initializeApp(firebaseConfig);
@@ -13,17 +32,11 @@ export const googleProvider = new GoogleAuthProvider();
 export const signInWithGoogle = () => signInWithPopup(auth, googleProvider);
 export const logout = () => auth.signOut();
 
-// Connection Test (as per instructions)
-async function testConnection() {
-  try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration.");
-    }
-  }
+if (import.meta.env.DEV && !isFirebaseConfigured) {
+  console.warn(
+    'Firebase đang dùng cấu hình mẫu trong firebase-applet-config.json. Đăng nhập và đồng bộ cloud sẽ chưa hoạt động cho đến khi bạn thay bằng config thật.',
+  );
 }
-testConnection();
 
 export { 
   onAuthStateChanged, 

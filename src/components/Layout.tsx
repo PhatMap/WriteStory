@@ -1,6 +1,7 @@
 import { Link, Outlet } from "react-router-dom";
 import { BookOpen, FolderOpen } from "lucide-react";
 import { texts } from "../constants/texts";
+import GeminiKeyManagerButton from "./GeminiKeyManagerButton";
 
 export default function Layout() {
   return (
@@ -16,13 +17,18 @@ export default function Layout() {
                 {texts.common.appName}
               </span>
             </Link>
-            <Link
-              to="/library"
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-indigo-200 hover:text-indigo-600"
-            >
-              <FolderOpen size={16} />
-              <span className="hidden xs:inline">{texts.layout.libraryLink}</span>
-            </Link>
+            <div className="flex items-center gap-2 shrink-0">
+              <GeminiKeyManagerButton />
+              <Link
+                to="/library"
+                className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-indigo-200 hover:text-indigo-600"
+              >
+                <FolderOpen size={16} />
+                <span className="hidden xs:inline">
+                  {texts.layout.libraryLink}
+                </span>
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
