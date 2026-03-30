@@ -106,8 +106,8 @@ export default function Home() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4 sm:p-8 lg:p-12 mt-4 sm:mt-10">
-      <div className="text-center mb-8 sm:mb-12">
+    <div className="max-w-3xl mx-auto p-4 pt-0 sm:p-8 sm:pt-4">
+      <div className="text-center sm:mb-4">
         <h1 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">
           Bắt đầu hành trình sáng tác
         </h1>
