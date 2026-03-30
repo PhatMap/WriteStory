@@ -54,7 +54,7 @@ const GENRES = [
   "Xuyên không",
 ].sort((a, b) => a.localeCompare(b, 'vi'));
 
-export default function Page1() {
+export default function StoryIdeaStep() {
   const [prompt, setPrompt] = useState("");
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [worldSetting, setWorldSetting] = useState("");

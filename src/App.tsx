@@ -7,11 +7,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React from "react";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
-import Page1 from "./pages/Page1";
-import Page2 from "./pages/Page2";
+import StoryIdeaStep from "./pages/StoryIdeaStep";
+import CharacterStep from "./pages/CharacterStep";
 import PageWorld from "./pages/PageWorld";
-import Page3 from "./pages/Page3";
-import Page4 from "./pages/Page4";
+import StoryRules from "./pages/StoryRules";
+import StoryIllustrationGenerator from "./pages/StoryIllustrationGenerator";
 import StoryEditor from "./pages/StoryEditor";
 import StoryLibrary from "./pages/StoryLibrary";
 import StoryReader from "./pages/StoryReader";
@@ -70,11 +70,11 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
-              <Route path="page1" element={<Page1 />} />
+              <Route path="page1" element={<StoryIdeaStep />} />
               <Route path="page-world" element={<PageWorld />} />
-              <Route path="page2" element={<Page2 />} />
-              <Route path="page3" element={<Page3 />} />
-              <Route path="page4" element={<Page4 />} />
+              <Route path="page2" element={<CharacterStep />} />
+              <Route path="page3" element={<StoryRules />} />
+              <Route path="page4" element={<StoryIllustrationGenerator />} />
               <Route path="editor" element={<StoryEditor />} />
               <Route path="library" element={<StoryLibrary />} />
               <Route path="library/:projectId" element={<StoryReader />} />

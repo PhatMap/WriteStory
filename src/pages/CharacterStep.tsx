@@ -7,7 +7,7 @@ import { SavedOptions } from "../components/SavedOptions";
 import { safeSetItem, safeGetItem } from "../utils/storage";
 import { useAuth } from "../contexts/AuthContext";
 
-export default function Page2() {
+export default function CharacterStep() {
   const [characterName, setCharacterName] = useState("");
   const [prompt, setPrompt] = useState("");
   const [identity, setIdentity] = useState("");

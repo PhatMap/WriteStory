@@ -5,7 +5,7 @@ import { Loader2, Image as ImageIcon, Download, ArrowLeft } from "lucide-react";
 import { safeSetItem, safeGetItem } from "../utils/storage";
 import { useAuth } from "../contexts/AuthContext";
 
-export default function Page4() {
+export default function StoryIllustrationGenerators() {
   const [prompt, setPrompt] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
