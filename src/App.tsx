@@ -17,6 +17,7 @@ import StoryLibrary from "./pages/StoryLibrary";
 import StoryReader from "./pages/StoryReader";
 import SharedStory from "./pages/SharedStory";
 import { AuthProvider } from "./contexts/AuthContext";
+import { texts } from "./constants/texts";
 
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
   constructor(props: {children: React.ReactNode}) {
@@ -38,20 +39,19 @@ return (
   <div className="min-h-screen flex items-center justify-center bg-stone-50 p-4">
     <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full text-center">
       <h1 className="text-2xl font-bold text-rose-600 mb-4">
-        Đã xảy ra lỗi hệ thống
+        {texts.app.errorBoundaryTitle}
       </h1>
       <p className="text-stone-600 mb-6">
-        Xin lỗi, đã có lỗi không mong muốn xảy ra. Vui lòng tải lại trang để
-        tiếp tục.
+        {texts.app.errorBoundaryMessage}
       </p>
       <div className="bg-stone-100 p-4 rounded-lg text-left overflow-auto max-h-40 text-sm text-stone-500 mb-6 font-mono">
-        {this.state.error?.message || "Unknown error"}
+        {this.state.error?.message || texts.common.unknownError}
       </div>
       <button
         onClick={() => window.location.reload()}
         className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors"
       >
-        Tải lại trang
+        {texts.app.errorBoundaryReload}
       </button>
     </div>
   </div>

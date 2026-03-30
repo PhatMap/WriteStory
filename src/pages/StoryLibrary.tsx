@@ -18,6 +18,7 @@ import {
   saveStoryProject,
   type StoryProjectMeta,
 } from "../utils/storyLibrary";
+import { texts } from "../constants/texts";
 
 export default function StoryLibrary() {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ export default function StoryLibrary() {
       navigate("/page1");
     } catch (error) {
       console.error("Failed to create story project", error);
-      setErrorMessage("Khong the tao truyen moi. Vui long thu lai.");
+      setErrorMessage(texts.storyLibrary.createError);
     } finally {
       setBusyProjectId(null);
     }
@@ -65,16 +66,14 @@ export default function StoryLibrary() {
       navigate("/editor");
     } catch (error) {
       console.error("Failed to open story project", error);
-      setErrorMessage("Khong mo duoc truyen nay.");
+      setErrorMessage(texts.storyLibrary.openError);
     } finally {
       setBusyProjectId(null);
     }
   };
 
   const handleDeleteProject = async (projectId: string) => {
-    const confirmed = window.confirm(
-      "Ban co chac muon xoa truyen nay khoi kho truyen?",
-    );
+    const confirmed = window.confirm(texts.storyLibrary.deleteConfirm);
     if (!confirmed) return;
 
     setBusyProjectId(projectId);
@@ -83,7 +82,7 @@ export default function StoryLibrary() {
       await refreshProjects();
     } catch (error) {
       console.error("Failed to delete story project", error);
-      setErrorMessage("Khong xoa duoc truyen.");
+      setErrorMessage(texts.storyLibrary.deleteError);
     } finally {
       setBusyProjectId(null);
     }
@@ -107,7 +106,7 @@ export default function StoryLibrary() {
         navigate("/editor");
       } catch (error) {
         console.error("Failed to import story project", error);
-        setErrorMessage("File JSON khong hop le hoac da bi hong.");
+        setErrorMessage(texts.storyLibrary.importError);
       } finally {
         event.target.value = "";
       }
@@ -121,14 +120,13 @@ export default function StoryLibrary() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
-            Kho truyện
+            {texts.storyLibrary.eyebrow}
           </p>
           <h1 className="text-3xl sm:text-4xl font-bold text-stone-900 mt-2">
-            Thư viện truyện local của bạn
+            {texts.storyLibrary.title}
           </h1>
           <p className="text-stone-500 mt-3 max-w-2xl">
-            Mỗi truyện được lưu sẵn trong máy. Lần sau mở app, bạn chỉ cần vào
-            kho và chọn truyện để đọc hoặc viết tiếp.
+            {texts.storyLibrary.description}
           </p>
         </div>
 
@@ -138,7 +136,7 @@ export default function StoryLibrary() {
             className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-3 bg-white border border-stone-200 rounded-xl font-medium text-stone-700 hover:border-emerald-500 hover:text-emerald-600 transition-colors"
           >
             <Upload size={18} />
-            Nhập JSON
+            {texts.storyLibrary.importButton}
           </button>
           <button
             onClick={handleCreateProject}
@@ -150,7 +148,7 @@ export default function StoryLibrary() {
             ) : (
               <PlusCircle size={18} />
             )}
-            Thêm truyện mới
+            {texts.storyLibrary.addStoryButton}
           </button>
         </div>
       </div>
@@ -172,7 +170,7 @@ export default function StoryLibrary() {
       {loading ? (
         <div className="min-h-[220px] flex items-center justify-center text-stone-500">
           <Loader2 size={22} className="animate-spin mr-3" />
-          Đang tải kho truyện...
+          {texts.storyLibrary.loadingText}
         </div>
       ) : projects.length === 0 ? (
         <div className="bg-white border border-dashed border-stone-300 rounded-3xl p-8 sm:p-12 text-center">
@@ -180,11 +178,10 @@ export default function StoryLibrary() {
             <BookOpen size={30} />
           </div>
           <h2 className="text-2xl font-bold text-stone-900">
-            Kho truyện còn trống
+            {texts.storyLibrary.emptyTitle}
           </h2>
           <p className="text-stone-500 mt-3 max-w-xl mx-auto">
-            Bạn có thể tạo truyện mới hoặc nhập file JSON đã xuất trước đó. Sau
-            khi viết, mỗi lần lưu sẽ tự động cập nhật vào đây.
+            {texts.storyLibrary.emptyDescription}
           </p>
         </div>
       ) : (
@@ -197,12 +194,12 @@ export default function StoryLibrary() {
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
-                    <span>{project.volumeCount} quyển</span>
+                    <span>{project.volumeCount} {texts.storyLibrary.volumeUnit}</span>
                     <span className="text-stone-300">/</span>
-                    <span>{project.chapterCount} chương</span>
+                    <span>{project.chapterCount} {texts.storyLibrary.chapterUnit}</span>
                     <span className="text-stone-300">/</span>
                     <span>
-                      {project.totalCharacters.toLocaleString("vi-VN")} ký tự
+                      {project.totalCharacters.toLocaleString("vi-VN")} {texts.storyLibrary.characterUnit}
                     </span>
                   </div>
 
@@ -210,12 +207,11 @@ export default function StoryLibrary() {
                     {project.title}
                   </h2>
                   <p className="text-sm text-stone-500 mt-1">
-                    Cập nhật lúc{" "}
+                    {texts.storyLibrary.updatedAtPrefix}{" "}
                     {new Date(project.updatedAt).toLocaleString("vi-VN")}
                   </p>
                   <p className="text-stone-600 mt-4 whitespace-pre-wrap break-words">
-                    {project.excerpt ||
-                      "Chưa có nội dung tóm tắt. Mở truyện để bắt đầu viết."}
+                    {project.excerpt || texts.storyLibrary.emptyExcerpt}
                   </p>
                 </div>
 
@@ -225,7 +221,7 @@ export default function StoryLibrary() {
                     className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-stone-200 text-stone-700 font-medium hover:border-sky-500 hover:text-sky-600 transition-colors"
                   >
                     <BookOpen size={16} />
-                    Đọc
+                    {texts.storyLibrary.readButton}
                   </Link>
                   <button
                     onClick={() => void handleOpenProject(project.id)}
@@ -237,7 +233,7 @@ export default function StoryLibrary() {
                     ) : (
                       <FolderOpen size={16} />
                     )}
-                    Mở và viết tiếp
+                    {texts.storyLibrary.openAndWriteButton}
                   </button>
                   <button
                     onClick={() => void handleDeleteProject(project.id)}
@@ -245,7 +241,7 @@ export default function StoryLibrary() {
                     className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-rose-200 text-rose-600 font-medium hover:bg-rose-50 transition-colors disabled:opacity-70"
                   >
                     <Trash2 size={16} />
-                    Xóa
+                    {texts.storyLibrary.deleteButton}
                   </button>
                 </div>
               </div>

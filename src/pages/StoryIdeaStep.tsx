@@ -6,53 +6,9 @@ import { Loader2, Zap, ArrowRight, FileUp, X, FileText, Save, CheckCircle2 } fro
 import { SavedOptions } from "../components/SavedOptions";
 import { safeSetItem, safeGetItem } from "../utils/storage";
 import { useAuth } from "../contexts/AuthContext";
+import { texts } from "../constants/texts";
 
-const GENRES = [
-  "1v1",
-  "Biến thân",
-  "Cao võ",
-  "Chat group",
-  "Chủ thần không gian",
-  "Dị năng",
-  "Dân gian",
-  "Đô thị",
-  "Hài hước",
-  "Hậu cung",
-  "Hệ thống",
-  "Hồng hoang",
-  "Huyền huyễn",
-  "Làm ruộng",
-  "Lãnh chúa",
-  "Linh dị",
-  "Nhẹ nhàng",
-  "Nón hồng nô (vợ/người yêu nam chính chủ động đẩy nam chính vào lòng cô gái khác)",
-  "Nón xanh (người yêu/vợ nam chính bị người khác chơi)",
-  "Nữ tôn",
-  "Phàm nhân",
-  "Phản phái",
-  "Phía sau màn",
-  "Phế vật nghịch tập",
-  "Sáng thế",
-  "Sắc hiệp",
-  "Tào tặc",
-  "Tận thế",
-  "Tây phương",
-  "Thần hào",
-  "Thần linh",
-  "Thần thoại",
-  "Thiên tài",
-  "Tiến hóa",
-  "Tiên hiệp",
-  "Tiếng lòng",
-  "Toàn dân",
-  "Trực tiếp",
-  "Trùng sinh",
-  "Vạn giới",
-  "Võ hiệp",
-  "Võng du",
-  "Vô hạn",
-  "Xuyên không",
-].sort((a, b) => a.localeCompare(b, 'vi'));
+const GENRES = [...texts.storyIdeaStep.genres].sort((a, b) => a.localeCompare(b, "vi"));
 
 export default function StoryIdeaStep() {
   const [prompt, setPrompt] = useState("");
@@ -105,7 +61,7 @@ export default function StoryIdeaStep() {
       {savedSection === section && (
         <>
           <CheckCircle2 size={14} className="text-emerald-500" />
-          <span className="text-emerald-500 font-normal">Đã tự động lưu</span>
+          <span className="text-emerald-500 font-normal">{texts.common.autoSaved}</span>
         </>
       )}
     </div>
@@ -148,7 +104,7 @@ export default function StoryIdeaStep() {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (file.size > 500 * 1024) {
-        alert(`File "${file.name}" quá lớn (>500KB). Vui lòng chọn file nhỏ hơn để đảm bảo hiệu năng.`);
+        alert(texts.storyIdeaStep.uploadTooLarge(file.name));
         continue;
       }
       const content = await new Promise<string>((resolve) => {
@@ -188,7 +144,7 @@ export default function StoryIdeaStep() {
       setResult(res || "");
     } catch (error) {
       console.error(error);
-      setResult("Có lỗi xảy ra khi tạo ý tưởng.");
+      setResult(texts.storyIdeaStep.generateError);
     } finally {
       setLoading(false);
     }
@@ -201,15 +157,15 @@ export default function StoryIdeaStep() {
           <div className="p-2 bg-amber-100 text-amber-600 rounded-lg">
             <Zap size={20} />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-stone-900">Trang 1: Ý tưởng truyện</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-stone-900">{texts.storyIdeaStep.title}</h1>
         </div>
-        <p className="text-stone-500 text-sm sm:text-base">Thiết lập các thông số chi tiết để AI tạo ra các ý tưởng cốt truyện độc đáo.</p>
+        <p className="text-stone-500 text-sm sm:text-base">{texts.storyIdeaStep.description}</p>
       </div>
 
       <div className="bg-white p-4 sm:p-6 rounded-2xl border border-stone-200 shadow-sm mb-8 space-y-6">
         <div>
           <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-3">
-            <span>Thể loại</span>
+            <span>{texts.storyIdeaStep.genresLabel}</span>
             <AutoSaveIndicator section="genres" />
           </label>
           <div className="flex flex-wrap gap-2">
@@ -241,14 +197,14 @@ export default function StoryIdeaStep() {
         <div className="space-y-8">
           <div>
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-2">
-              <span>Từ khóa / Ý tưởng chính</span>
+              <span>{texts.storyIdeaStep.promptLabel}</span>
               <AutoSaveIndicator section="prompt" />
             </label>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onBlur={() => handleAutoSave("prompt")}
-              placeholder="VD: Nhân vật chính trọng sinh..."
+              placeholder={texts.storyIdeaStep.promptPlaceholder}
               className="w-full px-5 py-4 border border-stone-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg shadow-sm min-h-[150px] resize-y"
             />
             <SavedOptions 
@@ -261,14 +217,14 @@ export default function StoryIdeaStep() {
 
           <div>
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-2">
-              <span>Thiết lập thế giới</span>
+              <span>{texts.storyIdeaStep.worldSettingLabel}</span>
               <AutoSaveIndicator section="worldSetting" />
             </label>
             <textarea
               value={worldSetting}
               onChange={(e) => setWorldSetting(e.target.value)}
               onBlur={() => handleAutoSave("worldSetting")}
-              placeholder="VD: Tu chân giới, mạt thế, tinh tế..."
+              placeholder={texts.storyIdeaStep.worldSettingPlaceholder}
               className="w-full px-5 py-4 border border-stone-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg shadow-sm min-h-[120px] resize-y"
             />
             <SavedOptions 
@@ -281,14 +237,14 @@ export default function StoryIdeaStep() {
 
           <div>
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-2">
-              <span>Tài nguyên</span>
+              <span>{texts.storyIdeaStep.resourcesLabel}</span>
               <AutoSaveIndicator section="resources" />
             </label>
             <textarea
               value={resources}
               onChange={(e) => setResources(e.target.value)}
               onBlur={() => handleAutoSave("resources")}
-              placeholder="VD: Linh thạch, điểm tín ngưỡng, thọ mệnh..."
+              placeholder={texts.storyIdeaStep.resourcesPlaceholder}
               className="w-full px-5 py-4 border border-stone-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg shadow-sm min-h-[120px] resize-y"
             />
             <SavedOptions 
@@ -301,14 +257,14 @@ export default function StoryIdeaStep() {
 
           <div>
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-2">
-              <span>Chủng tộc</span>
+              <span>{texts.storyIdeaStep.racesLabel}</span>
               <AutoSaveIndicator section="races" />
             </label>
             <textarea
               value={races}
               onChange={(e) => setRaces(e.target.value)}
               onBlur={() => handleAutoSave("races")}
-              placeholder="VD: Nhân loại, Yêu tộc, Ma tộc, Thần linh..."
+              placeholder={texts.storyIdeaStep.racesPlaceholder}
               className="w-full px-5 py-4 border border-stone-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg shadow-sm min-h-[120px] resize-y"
             />
             <SavedOptions 
@@ -323,7 +279,7 @@ export default function StoryIdeaStep() {
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-3">
               <span className="flex items-center gap-2">
                 <FileUp size={18} className="text-indigo-500" />
-                Học tập từ tài liệu (Tải lên nhiều file .txt, .md)
+                {texts.storyIdeaStep.learningFilesLabel}
               </span>
               <AutoSaveIndicator section="learningFiles" />
             </label>
@@ -336,8 +292,8 @@ export default function StoryIdeaStep() {
                   {isUploading ? <Loader2 size={24} className="animate-spin" /> : <FileUp size={24} />}
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-medium text-stone-700">Nhấn để tải lên tài liệu</p>
-                  <p className="text-xs text-stone-400 mt-1">Hỗ trợ file lớn lên đến 100MB+ (.txt, .md)</p>
+                  <p className="text-sm font-medium text-stone-700">{texts.storyIdeaStep.learningFilesUploadTitle}</p>
+                  <p className="text-xs text-stone-400 mt-1">{texts.storyIdeaStep.learningFilesUploadHint}</p>
                 </div>
                 <input 
                   type="file" 
@@ -377,7 +333,7 @@ export default function StoryIdeaStep() {
             className="px-6 py-2 bg-stone-900 text-white rounded-xl font-medium hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
           >
             {loading ? <Loader2 size={18} className="animate-spin" /> : <Zap size={18} />}
-            Tạo ý tưởng
+            {texts.storyIdeaStep.generateButton}
           </button>
         </div>
       </div>
@@ -390,7 +346,7 @@ export default function StoryIdeaStep() {
 
       <div className="mt-8 flex justify-end">
         <Link to="/page-world" className="px-6 py-3 bg-stone-900 text-white rounded-xl font-medium hover:bg-stone-800 flex items-center gap-2 transition-colors">
-          Trang kế (Hệ thống & Logic) <ArrowRight size={18} />
+          {texts.storyIdeaStep.nextButton} <ArrowRight size={18} />
         </Link>
       </div>
     </div>

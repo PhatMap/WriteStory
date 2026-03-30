@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Book, Calendar, User, Share2, Copy, CheckCircle2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { db, doc, getDoc } from "../services/firebase";
+import { texts } from "../constants/texts";
 
 type SharedContent = {
   title: string;
@@ -32,7 +33,7 @@ export default function SharedStory() {
             created_at: data.created_at
           });
         } else {
-          throw new Error("Không tìm thấy truyện hoặc link đã hết hạn.");
+          throw new Error(texts.sharedStory.notFoundError);
         }
       } catch (err: any) {
         setError(err.message);
@@ -55,7 +56,7 @@ export default function SharedStory() {
       <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-stone-500 font-medium">Đang tải truyện...</p>
+          <p className="text-stone-500 font-medium">{texts.sharedStory.loadingText}</p>
         </div>
       </div>
     );
@@ -67,10 +68,10 @@ export default function SharedStory() {
         <div className="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mb-6">
           <Book size={40} />
         </div>
-        <h1 className="text-2xl font-bold text-stone-800 mb-2">Ối! Có lỗi xảy ra</h1>
-        <p className="text-stone-500 mb-8 max-w-md">{error || "Không tìm thấy nội dung yêu cầu."}</p>
+        <h1 className="text-2xl font-bold text-stone-800 mb-2">{texts.sharedStory.errorTitle}</h1>
+        <p className="text-stone-500 mb-8 max-w-md">{error || texts.sharedStory.fallbackError}</p>
         <Link to="/" className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
-          Về trang chủ
+          {texts.sharedStory.backHome}
         </Link>
       </div>
     );
@@ -83,7 +84,7 @@ export default function SharedStory() {
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-stone-600 hover:text-indigo-600 transition-colors">
             <ArrowLeft size={20} />
-            <span className="font-medium hidden sm:inline">Trang chủ</span>
+            <span className="font-medium hidden sm:inline">{texts.sharedStory.homeLink}</span>
           </Link>
           <div className="flex items-center gap-2">
             <button 
@@ -91,7 +92,7 @@ export default function SharedStory() {
               className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors text-sm font-bold"
             >
               {copied ? <CheckCircle2 size={18} /> : <Share2 size={18} />}
-              {copied ? "Đã chép link" : "Chia sẻ"}
+              {copied ? texts.sharedStory.copyDone : texts.sharedStory.shareButton}
             </button>
           </div>
         </div>
@@ -111,7 +112,7 @@ export default function SharedStory() {
               </div>
               <div className="flex items-center gap-1.5">
                 <User size={16} />
-                <span>Tác giả AI Studio</span>
+                <span>{texts.sharedStory.aiStudioAuthor}</span>
               </div>
             </div>
           </div>
@@ -144,9 +145,9 @@ export default function SharedStory() {
 
           {/* Footer */}
           <div className="p-8 bg-stone-50 border-t border-stone-100 text-center">
-            <p className="text-stone-400 text-sm mb-4">Được tạo bởi AI Studio - Trình viết truyện thông minh</p>
+            <p className="text-stone-400 text-sm mb-4">{texts.sharedStory.footerText}</p>
             <Link to="/" className="inline-flex items-center gap-2 text-indigo-600 font-bold hover:underline">
-              Tự tạo truyện của riêng bạn <ArrowLeft size={16} className="rotate-180" />
+              {texts.sharedStory.createYourOwn} <ArrowLeft size={16} className="rotate-180" />
             </Link>
           </div>
         </article>

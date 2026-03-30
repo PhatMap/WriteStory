@@ -1,5 +1,6 @@
 import { Link, Outlet } from "react-router-dom";
 import { BookOpen, FolderOpen } from "lucide-react";
+import { texts } from "../constants/texts";
 
 export default function Layout() {
   return (
@@ -12,7 +13,7 @@ export default function Layout() {
                 <BookOpen size={22} />
               </div>
               <span className="truncate text-lg sm:text-xl font-bold tracking-tight text-stone-800">
-                StoryCraft
+                {texts.common.appName}
               </span>
             </Link>
             <Link
@@ -20,7 +21,7 @@ export default function Layout() {
               className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-indigo-200 hover:text-indigo-600"
             >
               <FolderOpen size={16} />
-              <span className="hidden xs:inline">Kho truyện</span>
+              <span className="hidden xs:inline">{texts.layout.libraryLink}</span>
             </Link>
           </div>
         </div>

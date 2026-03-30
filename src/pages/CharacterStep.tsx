@@ -6,6 +6,7 @@ import { Loader2, Sparkles, ArrowRight, ArrowLeft, Save, CheckCircle2, Plus, Tra
 import { SavedOptions } from "../components/SavedOptions";
 import { safeSetItem, safeGetItem } from "../utils/storage";
 import { useAuth } from "../contexts/AuthContext";
+import { texts } from "../constants/texts";
 
 export default function CharacterStep() {
   const [characterName, setCharacterName] = useState("");
@@ -90,7 +91,7 @@ export default function CharacterStep() {
       {savedSection === section && (
         <>
           <CheckCircle2 size={14} className="text-emerald-500" />
-          <span className="text-emerald-500 font-normal">Đã tự động lưu</span>
+          <span className="text-emerald-500 font-normal">{texts.common.autoSaved}</span>
         </>
       )}
     </div>
@@ -152,7 +153,7 @@ export default function CharacterStep() {
       setResult(res || "");
     } catch (error) {
       console.error(error);
-      setResult("Có lỗi xảy ra khi phát triển nhân vật.");
+      setResult(texts.characterStep.generateError);
     } finally {
       setLoading(false);
     }
@@ -165,23 +166,23 @@ export default function CharacterStep() {
           <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
             <Sparkles size={20} />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-stone-900">Trang 3: Phát triển nhân vật</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-stone-900">{texts.characterStep.title}</h1>
         </div>
-        <p className="text-stone-500 text-sm sm:text-base">Thiết lập các thông số chi tiết để AI xây dựng hồ sơ nhân vật có chiều sâu.</p>
+        <p className="text-stone-500 text-sm sm:text-base">{texts.characterStep.description}</p>
       </div>
 
       <div className="bg-white p-4 sm:p-6 rounded-2xl border border-stone-200 shadow-sm mb-8 space-y-6">
         <div className="space-y-8">
           <div>
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-2">
-              <span>Tên nhân vật chính</span>
+              <span>{texts.characterStep.mainCharacterLabel}</span>
               <AutoSaveIndicator section="characterName" />
             </label>
             <textarea
               value={characterName}
               onChange={(e) => setCharacterName(e.target.value)}
               onBlur={() => handleAutoSave("characterName")}
-              placeholder="VD: Tiêu Viêm, Hàn Lập, Đường Tam..."
+              placeholder={texts.characterStep.mainCharacterPlaceholder}
               className="w-full px-5 py-4 border border-stone-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg shadow-sm min-h-[80px] resize-y"
             />
             <SavedOptions 
@@ -194,14 +195,14 @@ export default function CharacterStep() {
 
           <div>
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-2">
-              <span>Mô tả ngắn / Ý tưởng chung</span>
+              <span>{texts.characterStep.promptLabel}</span>
               <AutoSaveIndicator section="prompt" />
             </label>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onBlur={() => handleAutoSave("prompt")}
-              placeholder="VD: Một nữ sát thủ bị mất trí nhớ, luôn mang theo một chiếc đồng hồ quả quýt hỏng..."
+              placeholder={texts.characterStep.promptPlaceholder}
               className="w-full px-5 py-4 border border-stone-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[200px] resize-y text-lg shadow-sm"
             />
             <SavedOptions 
@@ -214,14 +215,14 @@ export default function CharacterStep() {
 
           <div>
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-2">
-              <span>Danh tính</span>
+              <span>{texts.characterStep.identityLabel}</span>
               <AutoSaveIndicator section="identity" />
             </label>
             <textarea
               value={identity}
               onChange={(e) => setIdentity(e.target.value)}
               onBlur={() => handleAutoSave("identity")}
-              placeholder="VD: Thánh nữ ma giáo, Phế vật thiếu gia..."
+              placeholder={texts.characterStep.identityPlaceholder}
               className="w-full px-5 py-4 border border-stone-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg shadow-sm min-h-[120px] resize-y"
             />
             <SavedOptions 
@@ -234,14 +235,14 @@ export default function CharacterStep() {
 
           <div>
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-2">
-              <span>Tính cách</span>
+              <span>{texts.characterStep.personalityLabel}</span>
               <AutoSaveIndicator section="personality" />
             </label>
             <textarea
               value={personality}
               onChange={(e) => setPersonality(e.target.value)}
               onBlur={() => handleAutoSave("personality")}
-              placeholder="VD: Lãnh khốc, sát phạt quả đoán, cẩn thận..."
+              placeholder={texts.characterStep.personalityPlaceholder}
               className="w-full px-5 py-4 border border-stone-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg shadow-sm min-h-[120px] resize-y"
             />
             <SavedOptions 
@@ -254,14 +255,14 @@ export default function CharacterStep() {
 
           <div>
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-2">
-              <span>Ngoại hình</span>
+              <span>{texts.characterStep.appearanceLabel}</span>
               <AutoSaveIndicator section="appearance" />
             </label>
             <textarea
               value={appearance}
               onChange={(e) => setAppearance(e.target.value)}
               onBlur={() => handleAutoSave("appearance")}
-              placeholder="VD: Cao 1m8, tóc đen dài, mắt xanh, thường mặc áo bào trắng..."
+              placeholder={texts.characterStep.appearancePlaceholder}
               className="w-full px-5 py-4 border border-stone-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg shadow-sm min-h-[120px] resize-y"
             />
             <SavedOptions 
@@ -274,14 +275,14 @@ export default function CharacterStep() {
 
           <div>
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-2">
-              <span>Thiên phú</span>
+              <span>{texts.characterStep.talentLabel}</span>
               <AutoSaveIndicator section="talent" />
             </label>
             <textarea
               value={talent}
               onChange={(e) => setTalent(e.target.value)}
               onBlur={() => handleAutoSave("talent")}
-              placeholder="VD: Thần cấp kiếm cốt, Ngũ hành linh căn..."
+              placeholder={texts.characterStep.talentPlaceholder}
               className="w-full px-5 py-4 border border-stone-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg shadow-sm min-h-[120px] resize-y"
             />
             <SavedOptions 
@@ -294,14 +295,14 @@ export default function CharacterStep() {
 
           <div>
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-2">
-              <span>Gia cảnh</span>
+              <span>{texts.characterStep.backgroundLabel}</span>
               <AutoSaveIndicator section="background" />
             </label>
             <textarea
               value={background}
               onChange={(e) => setBackground(e.target.value)}
               onBlur={() => handleAutoSave("background")}
-              placeholder="VD: Cô nhi, Gia tộc sa sút, Hoàng tử thất sủng..."
+              placeholder={texts.characterStep.backgroundPlaceholder}
               className="w-full px-5 py-4 border border-stone-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg shadow-sm min-h-[120px] resize-y"
             />
             <SavedOptions 
@@ -314,14 +315,14 @@ export default function CharacterStep() {
 
           <div>
             <label className="flex items-center justify-between text-sm font-medium text-stone-700 mb-2">
-              <span>Kim thủ chỉ (Cheat)</span>
+              <span>{texts.characterStep.cheatLabel}</span>
               <AutoSaveIndicator section="cheat" />
             </label>
             <textarea
               value={cheat}
               onChange={(e) => setCheat(e.target.value)}
               onBlur={() => handleAutoSave("cheat")}
-              placeholder="VD: Hệ thống đánh dấu, Lão gia gia trong nhẫn, Bảng panel thuộc tính..."
+              placeholder={texts.characterStep.cheatPlaceholder}
               className="w-full px-5 py-4 border border-stone-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg shadow-sm min-h-[150px] resize-y"
             />
             <SavedOptions 
@@ -335,8 +336,8 @@ export default function CharacterStep() {
           <div className="pt-8 border-t border-stone-100">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-bold text-stone-900">Nhân vật phụ</h2>
-                <p className="text-sm text-stone-500">Thêm các nhân vật quan trọng khác trong truyện.</p>
+                <h2 className="text-xl font-bold text-stone-900">{texts.characterStep.supportingCharactersTitle}</h2>
+                <p className="text-sm text-stone-500">{texts.characterStep.supportingCharactersDescription}</p>
               </div>
               <div className="flex items-center gap-4">
                 <AutoSaveIndicator section="supportingCharacters" />
@@ -344,7 +345,7 @@ export default function CharacterStep() {
                   onClick={addSupportingCharacter}
                   className="px-4 py-2 bg-stone-100 text-stone-700 rounded-xl text-sm font-bold hover:bg-stone-200 transition-all flex items-center gap-2"
                 >
-                  <Plus size={16} /> Thêm nhân vật phụ
+                  <Plus size={16} /> {texts.characterStep.addSupportingCharacter}
                 </button>
               </div>
             </div>
@@ -361,68 +362,68 @@ export default function CharacterStep() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Tên nhân vật</label>
+                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{texts.characterStep.supportingCharacterName}</label>
                       <input 
                         type="text"
                         value={char.name}
                         onChange={(e) => updateSupportingCharacter(index, "name", e.target.value)}
                         onBlur={() => handleAutoSave("supportingCharacters")}
-                        placeholder="Tên nhân vật phụ..."
+                        placeholder={texts.characterStep.supportingCharacterNamePlaceholder}
                         className="w-full p-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Danh tính</label>
+                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{texts.characterStep.supportingCharacterIdentity}</label>
                       <input 
                         type="text"
                         value={char.identity}
                         onChange={(e) => updateSupportingCharacter(index, "identity", e.target.value)}
                         onBlur={() => handleAutoSave("supportingCharacters")}
-                        placeholder="VD: Sư phụ, đối thủ, thanh mai trúc mã..."
+                        placeholder={texts.characterStep.supportingCharacterIdentityPlaceholder}
                         className="w-full p-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Tính cách</label>
+                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{texts.characterStep.supportingCharacterPersonality}</label>
                       <input 
                         type="text"
                         value={char.personality}
                         onChange={(e) => updateSupportingCharacter(index, "personality", e.target.value)}
                         onBlur={() => handleAutoSave("supportingCharacters")}
-                        placeholder="VD: Hiền lành, mưu mô, trung thành..."
+                        placeholder={texts.characterStep.supportingCharacterPersonalityPlaceholder}
                         className="w-full p-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Ngoại hình</label>
+                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{texts.characterStep.supportingCharacterAppearance}</label>
                       <input 
                         type="text"
                         value={char.appearance}
                         onChange={(e) => updateSupportingCharacter(index, "appearance", e.target.value)}
                         onBlur={() => handleAutoSave("supportingCharacters")}
-                        placeholder="VD: Xinh đẹp, lạnh lùng, mang theo kiếm..."
+                        placeholder={texts.characterStep.supportingCharacterAppearancePlaceholder}
                         className="w-full p-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Thiên phú</label>
+                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{texts.characterStep.supportingCharacterTalent}</label>
                       <input 
                         type="text"
                         value={char.talent}
                         onChange={(e) => updateSupportingCharacter(index, "talent", e.target.value)}
                         onBlur={() => handleAutoSave("supportingCharacters")}
-                        placeholder="VD: Kiếm đạo thiên tài, luyện đan sư..."
+                        placeholder={texts.characterStep.supportingCharacterTalentPlaceholder}
                         className="w-full p-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Gia cảnh</label>
+                      <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">{texts.characterStep.supportingCharacterBackground}</label>
                       <input 
                         type="text"
                         value={char.background}
                         onChange={(e) => updateSupportingCharacter(index, "background", e.target.value)}
                         onBlur={() => handleAutoSave("supportingCharacters")}
-                        placeholder="VD: Xuất thân hoàng tộc, tán tu..."
+                        placeholder={texts.characterStep.supportingCharacterBackgroundPlaceholder}
                         className="w-full p-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                     </div>
@@ -445,7 +446,7 @@ export default function CharacterStep() {
 
               {supportingCharacters.length === 0 && (
                 <div className="text-center py-12 border-2 border-dashed border-stone-200 rounded-2xl bg-stone-50/50">
-                  <p className="text-stone-400 text-sm">Chưa có nhân vật phụ nào được thêm.</p>
+                  <p className="text-stone-400 text-sm">{texts.characterStep.noSupportingCharacters}</p>
                 </div>
               )}
             </div>
@@ -459,7 +460,7 @@ export default function CharacterStep() {
             className="px-6 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
           >
             {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-            Phân tích & Xây dựng
+            {texts.characterStep.generateButton}
           </button>
         </div>
       </div>
@@ -472,10 +473,10 @@ export default function CharacterStep() {
 
       <div className="mt-8 flex justify-between">
         <Link to="/page-world" className="px-6 py-3 bg-white border border-stone-300 text-stone-700 rounded-xl font-medium hover:bg-stone-50 flex items-center gap-2 transition-colors">
-          <ArrowLeft size={18} /> Trang trước
+          <ArrowLeft size={18} /> {texts.common.previousPage}
         </Link>
         <Link to="/page3" className="px-6 py-3 bg-stone-900 text-white rounded-xl font-medium hover:bg-stone-800 flex items-center gap-2 transition-colors">
-          Trang kế (Quy tắc) <ArrowRight size={18} />
+          {texts.characterStep.nextButton} <ArrowRight size={18} />
         </Link>
       </div>
     </div>

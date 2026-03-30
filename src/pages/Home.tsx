@@ -9,6 +9,7 @@ import {
   parseImportedStoryData,
   saveStoryProject,
 } from "../utils/storyLibrary";
+import { texts } from "../constants/texts";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -92,8 +93,8 @@ export default function Home() {
         console.error("Error importing story from Home", error);
         setConfirmDialog({
           isOpen: true,
-          title: "Loi",
-          message: "File khong hop le!",
+          title: texts.home.invalidFileTitle,
+          message: texts.home.invalidFileMessage,
           isAlert: true,
           onConfirm: () => setConfirmDialog(null),
         });
@@ -109,10 +110,10 @@ export default function Home() {
     <div className="max-w-3xl mx-auto p-4 pt-0 sm:p-8 sm:pt-4">
       <div className="text-center sm:mb-4">
         <h1 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">
-          Bắt đầu hành trình sáng tác
+          {texts.home.title}
         </h1>
         <p className="text-stone-500 text-sm sm:text-base">
-          Chọn một phương thức để bắt đầu câu chuyện của bạn.
+          {texts.home.description}
         </p>
       </div>
 
@@ -126,11 +127,10 @@ export default function Home() {
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-stone-800">
-              Kho truyện
+              {texts.home.libraryTitle}
             </h2>
             <p className="text-stone-500 text-xs sm:text-sm mt-1">
-              Mở lại truyện đã lưu trong máy, đọc nhanh, viết tiếp hoặc nhập
-              JSON vào kho.
+              {texts.home.libraryDescription}
             </p>
           </div>
         </button>
@@ -144,11 +144,10 @@ export default function Home() {
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-stone-800">
-              Sáng tạo thế giới mới
+              {texts.home.newWorldTitle}
             </h2>
             <p className="text-stone-500 text-xs sm:text-sm mt-1">
-              Bắt đầu từ con số không. Lên ý tưởng, tạo nhân vật và thiết lập
-              quy tắc.
+              {texts.home.newWorldDescription}
             </p>
           </div>
         </button>
@@ -162,11 +161,10 @@ export default function Home() {
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-stone-800">
-              Đồng nhân (Fanfiction)
+              {texts.home.fanfictionTitle}
             </h2>
             <p className="text-stone-500 text-xs sm:text-sm mt-1">
-              Tải lên file văn bản (.txt) chứa bối cảnh/cốt truyện gốc để AI
-              viết tiếp.
+              {texts.home.fanfictionDescription}
             </p>
           </div>
           <input
@@ -188,10 +186,10 @@ export default function Home() {
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-stone-800">
-              Nhập file truyện đang viết
+              {texts.home.importTitle}
             </h2>
             <p className="text-stone-500 text-xs sm:text-sm mt-1">
-              Tải lên file (.json) đã xuất trước đó để tiếp tục công việc.
+              {texts.home.importDescription}
             </p>
           </div>
           <input

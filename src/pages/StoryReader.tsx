@@ -7,6 +7,7 @@ import {
   type StoryProjectChapter,
   type StoryProjectRecord,
 } from "../utils/storyLibrary";
+import { texts } from "../constants/texts";
 
 export default function StoryReader() {
   const { projectId = "" } = useParams();
@@ -52,7 +53,7 @@ export default function StoryReader() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center text-stone-500">
         <Loader2 size={22} className="animate-spin mr-3" />
-        Đang mở truyện...
+        {texts.storyReader.loadingText}
       </div>
     );
   }
@@ -61,16 +62,16 @@ export default function StoryReader() {
     return (
       <div className="max-w-3xl mx-auto p-6 sm:p-10 mt-8">
         <div className="bg-white border border-stone-200 rounded-3xl p-8 text-center">
-          <h1 className="text-2xl font-bold text-stone-900">Không tìm thấy truyện</h1>
+          <h1 className="text-2xl font-bold text-stone-900">{texts.storyReader.notFoundTitle}</h1>
           <p className="text-stone-500 mt-3">
-            Truyện này có thể đã bị xóa hoặc chưa được lưu đúng cách.
+            {texts.storyReader.notFoundDescription}
           </p>
           <Link
             to="/library"
             className="inline-flex items-center gap-2 mt-6 px-4 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-colors"
           >
             <ArrowLeft size={16} />
-            Quay lại kho truyện
+            {texts.storyReader.backToLibrary}
           </Link>
         </div>
       </div>
@@ -86,13 +87,13 @@ export default function StoryReader() {
             className="inline-flex items-center gap-2 text-sm font-medium text-stone-500 hover:text-indigo-600 transition-colors"
           >
             <ArrowLeft size={16} />
-            Về kho truyện
+            {texts.storyReader.libraryLink}
           </Link>
           <h1 className="text-3xl sm:text-4xl font-bold text-stone-900 mt-3">
             {project.title}
           </h1>
           <p className="text-stone-500 mt-2">
-            {project.volumeCount} quyển, {project.chapterCount} chương, cập nhật{" "}
+            {project.volumeCount} {texts.storyReader.volumeUnit}, {project.chapterCount} {texts.storyReader.chapterUnit}, {texts.storyReader.updatedPrefix}{" "}
             {new Date(project.updatedAt).toLocaleString("vi-VN")}
           </p>
         </div>
@@ -103,7 +104,7 @@ export default function StoryReader() {
           className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-70"
         >
           {opening ? <Loader2 size={18} className="animate-spin" /> : <PenTool size={18} />}
-          Mở trong trình soạn thảo
+          {texts.storyReader.openInEditorButton}
         </button>
       </div>
 
@@ -111,7 +112,7 @@ export default function StoryReader() {
         <aside className="bg-white border border-stone-200 rounded-3xl p-4 sm:p-5 h-fit overflow-hidden">
           <div className="flex items-center gap-2 text-stone-900 font-semibold mb-4">
             <BookOpen size={18} />
-            Danh sách chương
+            {texts.storyReader.chapterListTitle}
           </div>
           <div className="space-y-4 max-h-[50vh] lg:max-h-none overflow-y-auto">
             {project.payload.volumes.map((volume) => (
@@ -145,11 +146,11 @@ export default function StoryReader() {
             <>
               <h2 className="text-2xl font-bold text-stone-900">{activeChapter.title}</h2>
               <div className="mt-6 whitespace-pre-wrap leading-8 text-stone-700 break-words">
-                {activeChapter.content.trim() || "Chương này chưa có nội dung."}
+                {activeChapter.content.trim() || texts.storyReader.emptyChapterContent}
               </div>
             </>
           ) : (
-            <p className="text-stone-500">Truyện này chưa có chương nào để hiển thị.</p>
+            <p className="text-stone-500">{texts.storyReader.noChapters}</p>
           )}
         </section>
       </div>

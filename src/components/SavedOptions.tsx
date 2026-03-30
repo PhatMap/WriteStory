@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Save, X } from 'lucide-react';
 import { safeSetItem, safeGetItem } from '../utils/storage';
+import { texts } from '../constants/texts';
 
 interface SavedOptionsProps {
   storageKey: string;
@@ -53,7 +54,7 @@ export function SavedOptions({ storageKey, currentValue, onSelect, theme = 'indi
           className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${themeClasses[theme]}`}
         >
           <Save size={14} />
-          Lưu thành lựa chọn
+          {texts.savedOptions.saveButton}
         </button>
       </div>
       
